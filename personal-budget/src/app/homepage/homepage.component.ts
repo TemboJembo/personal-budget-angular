@@ -30,21 +30,28 @@ export class HomepageComponent implements OnInit{
   constructor(private http: HttpClient){}
 
   ngOnInit(): void{
-    this.http.get('http://localhost:3000/budget')
-    .subscribe((res: any) => {
-      for(var i = 0; i < res.data.myBudget.length; i++){
-//        this.dataSource.datasets[0].data[i] = res.data.myBudget[i].budget;
-//        this.dataSource.labels[i] = res.data.myBudget[i].title;
-//        this.createChart();
-      }
-    });
+      this.get('http://localhost:3000/budget')
+      .then(function (res) {
+          var budgetData = res.data.myBudget;
+
+          this.dataSource.datasets[0].data = budgetData.map(item => item.budget);
+          this.dataSource.labels = budgetData.map(item => item.title);
+
+          var d3Data = budgetData.map(item => ({ label: item.title, value: item.budget }));
+
+          createChart();
+          createD3Chart(d3Data);
+      })
+      .catch(function (error) {
+          console.error("Error fetching budget data:", error);
+      });
+  }
   }
 
-//  createChart() {
-//    var ctx = document.getElementById('myChart');
-//    var myPieChart = new Chart(ctx, {
-//        type: 'pie',
-//        data: dataSource
-//    });
-//}
+  createChart() {
+    var ctx = document.getElementById('myChart');
+    var myPieChart = new Chart(ctx, {
+        type: 'pie',
+        data: dataSource
+   });
 }
